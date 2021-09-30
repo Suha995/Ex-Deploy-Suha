@@ -1,33 +1,32 @@
-import { useState, useEffect } from "react";
-import "./App.css";
+import React, { useState, useEffect } from 'react';
+import feeds from './data/feeds.json';
+import './App.css';
 
 function App() {
-  const [links, setLinks] = useState([]);
-  useEffect(() => {
-    (async () => {
-      const response = await fetch(
-        "https://raw.githubusercontent.com/Suha995/Ex-Deploy-Suha/main/src/data/links.json"
-      );
-      const data = await response.json();
-      setLinks(data);
-    })();
-  }, []);
-  return (
-    <div className="App">
-      <h2>Links</h2>
-      <ul>
-        {links.map((link, index) => {
-          return (
-            <li>
-              <a href={link.url} target="_blank" rel="noreferrer">
-                {link.title}
-              </a>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
+	const [links, setLinks] = useState([]);
+
+	useEffect(() => {
+		feeds.forEach(feed => {
+			(async () => {
+				const response = await fetch(feed.linksUrl); 
+				const tempLinks = await response.json();
+				tempLinks.forEach(tempLink => tempLink.origin = feed.name);
+				setLinks(n => [...n, ...tempLinks]);
+			})();
+		})
+	}, []);
+	return (
+		<div className="App">
+			<h1>Links</h1>
+			<ul>
+				{links.map((link, index) => {
+					return (
+						<li key={index}><a target="_blank" href={link.url} rel="noreferrer">{link.title}</a> - (from {link.origin})</li>
+					)
+				})}
+			</ul>
+		</div>
+	);
 }
 
 export default App;
